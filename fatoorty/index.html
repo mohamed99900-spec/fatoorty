@@ -1,0 +1,801 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1220">
+<meta name="description" content="فاتورتي - أداة عربية مجانية لإنشاء الفواتير وعروض الأسعار وحفظها وطباعتها بسهولة.">
+<title>فاتورتي | إدارة الفواتير</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg:#0b1220;--panel:#111b2d;--panel2:#17243a;
+  --border:#263650;--text:#f1f5f9;--muted:#94a3b8;
+  --green:#34d399;--green2:#059669;--red:#fb7185;
+  --radius:18px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Cairo',Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.app{max-width:1440px;margin:auto;padding:22px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:24px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,#34d399,#059669);color:#062b20;font-size:25px;font-weight:900}
+.brand h1{font-size:23px;margin:0;font-weight:900}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:12px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:11px;padding:10px 15px;font-weight:700;font-size:13px;transition:.2s}
+.btn:hover{filter:brightness(1.18);transform:translateY(-1px)}
+.btn.primary{background:var(--green);color:#052e22;border-color:var(--green)}
+.btn.danger{color:#fecdd3;border-color:#713443;background:#301b2a}
+.btn.small{padding:6px 10px;font-size:12px}
+.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(330px,.85fr);gap:20px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.panel-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.panel-head h2{margin:0;font-size:16px}
+.panel-body{padding:20px}
+.section-title{font-size:13px;color:var(--green);font-weight:800;margin:4px 0 14px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field.full{grid-column:1/-1}
+.field label{font-size:12px;color:var(--muted);font-weight:700}
+.field input,.field select,.field textarea,.toolbar input,.toolbar select{
+  width:100%;min-width:0;background:#0b1424;border:1px solid var(--border);
+  color:var(--text);border-radius:10px;padding:11px 12px;font-size:13px;
+}
+.field textarea{resize:vertical;min-height:75px}
+.field input::placeholder,.field textarea::placeholder{color:#64748b}
+hr{border:0;border-top:1px solid var(--border);margin:22px 0}
+.items-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+.items-table{width:100%;border-collapse:collapse;min-width:510px}
+.items-table th{background:#0b1424;color:var(--muted);font-size:11px;text-align:right;padding:12px 10px}
+.items-table td{padding:8px;border-top:1px solid var(--border)}
+.items-table input{width:100%;min-width:0;background:#0b1424;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:9px 7px;font-size:12px}
+.items-table .number{width:72px}
+.items-table .price{width:105px}
+.items-table .remove{border:0;background:transparent;color:var(--red);font-size:19px;padding:5px}
+.totals{display:grid;gap:11px;margin-top:18px}
+.total-line{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--muted);font-size:13px}
+.total-line strong{color:var(--text);font-weight:800}
+.total-line.grand{padding-top:14px;border-top:1px solid var(--border);color:var(--text);font-size:16px}
+.total-line.grand strong{color:var(--green);font-size:23px}
+.discount-row{display:grid;grid-template-columns:1fr 110px;gap:10px}
+.preview-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.preview-scroll{padding:16px;background:#09101c}
+.paper{background:#fff;color:#182235;padding:clamp(18px,3vw,32px);border-radius:4px;min-height:650px;font-family:'Cairo',Arial,sans-serif;box-shadow:0 10px 40px #0002}
+.paper-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding-bottom:23px;border-bottom:3px solid #0f766e}
+.paper-logo{font-size:25px;font-weight:900;color:#0f766e}
+.paper-sub{font-size:10px;color:#64748b}
+.paper-type{font-size:21px;font-weight:900;margin:6px 0}
+.paper-meta{font-size:10px;color:#64748b;line-height:2}
+.paper-parties{display:grid;grid-template-columns:1fr 1fr;gap:15px;padding:22px 0}
+.paper-label{font-size:10px;color:#0f766e;font-weight:900;margin-bottom:7px}
+.paper-party-name{font-size:13px;font-weight:800;overflow-wrap:anywhere}
+.paper-party-details{font-size:10px;color:#64748b;white-space:pre-line;overflow-wrap:anywhere;line-height:1.9;margin-top:5px}
+.paper-table{width:100%;border-collapse:collapse;font-size:10px}
+.paper-table th{background:#e9f5f2;color:#0f514a;padding:10px 6px;text-align:right}
+.paper-table td{padding:10px 6px;border-bottom:1px solid #e2e8f0;overflow-wrap:anywhere}
+.paper-table .num{text-align:left;direction:ltr;white-space:nowrap}
+.paper-bottom{display:grid;grid-template-columns:1fr minmax(125px,.85fr);gap:18px;margin-top:23px}
+.paper-notes{font-size:10px;color:#64748b;line-height:2;white-space:pre-line;overflow-wrap:anywhere}
+.paper-sums{font-size:11px}
+.paper-sum{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #e2e8f0}
+.paper-sum.final{margin-top:5px;border:0;background:#e9f5f2;padding:12px;border-radius:6px;font-size:14px;font-weight:900;color:#0f766e}
+.paper-footer{border-top:1px solid #e2e8f0;margin-top:30px;padding-top:13px;font-size:9px;color:#94a3b8;text-align:center}
+.history{margin-top:20px}
+.history-list{display:grid;gap:9px}
+.history-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px;border:1px solid var(--border);border-radius:12px;background:#0d1727}
+.history-info{min-width:0}
+.history-info strong{display:block;font-size:13px;overflow-wrap:anywhere}
+.history-info span{display:block;font-size:11px;color:var(--muted);margin-top:4px}
+.history-actions{display:flex;gap:5px;flex-wrap:wrap}
+.empty{text-align:center;padding:25px 12px;color:var(--muted);font-size:13px}
+.status{font-size:11px;border:1px solid #245c4b;background:#102c27;color:#6ee7b7;padding:5px 9px;border-radius:30px}
+.toast{position:fixed;bottom:20px;left:20px;right:20px;margin:auto;max-width:360px;background:#e8fff5;color:#065f46;padding:13px 17px;border-radius:12px;font-weight:800;font-size:13px;text-align:center;box-shadow:0 10px 40px #0004;z-index:100;display:none}
+.footer{text-align:center;color:#64748b;font-size:11px;padding:26px 10px}
+@media(max-width:950px){.layout{grid-template-columns:1fr}.preview-panel{order:2}}
+@media(max-width:560px){
+ .app{padding:12px}.brand h1{font-size:20px}.topbar{align-items:flex-start}
+ .actions{width:100%}.actions .btn{flex:1}
+ .panel-body{padding:13px}.panel-head{padding:14px}
+ .form-grid{gap:10px}.field input,.field select,.field textarea{padding:10px 8px}
+ .preview-scroll{padding:8px}.paper{padding:16px;min-height:auto}
+ .paper-top{gap:8px}.paper-logo{font-size:20px}.paper-type{font-size:17px}
+ .paper-parties{gap:8px}.paper-bottom{grid-template-columns:1fr}
+ .history-item{align-items:flex-start;flex-direction:column}.history-actions{width:100%}
+ .history-actions .btn{flex:1}
+}
+@media print{
+ @page{size:A4;margin:10mm}
+ body{background:#fff!important}
+ body *{visibility:hidden!important}
+ #paper,#paper *{visibility:visible!important}
+ #paper{position:absolute!important;top:0!important;right:0!important;width:100%!important;min-height:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important}
+ .paper-footer{margin-top:20px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">ف</div>
+      <div>
+        <h1>فاتورتي <span style="color:var(--green)">.</span></h1>
+        <p>أنشئ فاتورتك باحترافية في دقائق</p>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="newBtn">＋ فاتورة جديدة</button>
+      <button class="btn" id="backupBtn">↓ نسخة احتياطية</button>
+      <button class="btn primary" id="saveBtn">✓ حفظ الفاتورة</button>
+      <button class="btn primary" id="printBtn">⎙ طباعة / PDF</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>بيانات الفاتورة</h2>
+        <span class="status">مجاني · يعمل محليًا</span>
+      </div>
+      <div class="panel-body">
+        <div class="section-title">01 — معلومات المستند</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="docType">نوع المستند</label>
+            <select id="docType">
+              <option value="invoice">فاتورة</option>
+              <option value="quote">عرض سعر</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="docNo">رقم المستند</label>
+            <input id="docNo" maxlength="40" placeholder="INV-0001">
+          </div>
+          <div class="field">
+            <label for="docDate">التاريخ</label>
+            <input id="docDate" type="date">
+          </div>
+          <div class="field">
+            <label for="dueDate">تاريخ الاستحقاق / انتهاء العرض</label>
+            <input id="dueDate" type="date">
+          </div>
+          <div class="field">
+            <label for="currency">العملة</label>
+            <select id="currency">
+              <option value="EGP">جنيه مصري (EGP)</option>
+              <option value="USD">دولار أمريكي (USD)</option>
+              <option value="SAR">ريال سعودي (SAR)</option>
+              <option value="AED">درهم إماراتي (AED)</option>
+              <option value="EUR">يورو (EUR)</option>
+              <option value="GBP">جنيه إسترليني (GBP)</option>
+            </select>
+          </div>
+        </div>
+
+        <hr>
+        <div class="section-title">02 — بيانات نشاطك التجاري</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="sellerName">اسمك / اسم الشركة</label>
+            <input id="sellerName" maxlength="100" placeholder="مثال: شركة الإبداع">
+          </div>
+          <div class="field">
+            <label for="sellerPhone">رقم التواصل</label>
+            <input id="sellerPhone" maxlength="50" placeholder="+20 ...">
+          </div>
+          <div class="field full">
+            <label for="sellerAddress">العنوان</label>
+            <input id="sellerAddress" maxlength="200" placeholder="المدينة، الدولة">
+          </div>
+          <div class="field full">
+            <label for="sellerEmail">البريد الإلكتروني (اختياري)</label>
+            <input id="sellerEmail" type="email" maxlength="150" placeholder="hello@example.com">
+          </div>
+        </div>
+
+        <hr>
+        <div class="section-title">03 — بيانات العميل</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="clientName">اسم العميل / الشركة</label>
+            <input id="clientName" maxlength="100" placeholder="اسم العميل">
+          </div>
+          <div class="field">
+            <label for="clientPhone">رقم الهاتف</label>
+            <input id="clientPhone" maxlength="50" placeholder="رقم التواصل">
+          </div>
+          <div class="field full">
+            <label for="clientAddress">عنوان العميل</label>
+            <input id="clientAddress" maxlength="200" placeholder="عنوان العميل">
+          </div>
+        </div>
+
+        <hr>
+        <div class="section-title">04 — المنتجات والخدمات</div>
+        <div class="items-wrap">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>الوصف</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="itemsBody"></tbody>
+          </table>
+        </div>
+        <button class="btn" id="addItemBtn" style="width:100%;margin-top:10px">＋ إضافة منتج أو خدمة</button>
+
+        <hr>
+        <div class="section-title">05 — الخصم والضريبة</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="discount">قيمة الخصم</label>
+            <input id="discount" type="number" min="0" max="1000000000" step="0.01" value="0">
+          </div>
+          <div class="field">
+            <label for="discountType">نوع الخصم</label>
+            <select id="discountType">
+              <option value="amount">مبلغ ثابت</option>
+              <option value="percent">نسبة مئوية %</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="tax">الضريبة (%)</label>
+            <input id="tax" type="number" min="0" max="100" step="0.01" value="0">
+          </div>
+        </div>
+        <p style="color:var(--muted);font-size:11px;line-height:1.9">تأكد من إدخال نسب الضرائب الصحيحة وفقًا لقوانين بلدك. الحسابات هنا تقديرية وتُحسب الضريبة بعد الخصم.</p>
+
+        <hr>
+        <div class="section-title">06 — ملاحظات وشروط</div>
+        <div class="form-grid">
+          <div class="field full">
+            <label for="notes">ملاحظات تظهر في المستند</label>
+            <textarea id="notes" maxlength="2000" placeholder="شكرًا لثقتكم بنا..."></textarea>
+          </div>
+        </div>
+
+        <hr>
+        <div class="section-title">ملخص المبالغ</div>
+        <div class="totals">
+          <div class="total-line"><span>المجموع الفرعي</span><strong id="subtotal">0.00 EGP</strong></div>
+          <div class="total-line"><span>الخصم</span><strong id="discountTotal">0.00 EGP</strong></div>
+          <div class="total-line"><span>الضريبة</span><strong id="taxTotal">0.00 EGP</strong></div>
+          <div class="total-line grand"><span>الإجمالي النهائي</span><strong id="grandTotal">0.00 EGP</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel preview-panel">
+      <div class="panel-head">
+        <div class="preview-head">
+          <h2>معاينة مباشرة</h2>
+        </div>
+        <span class="status">تتحدث تلقائيًا</span>
+      </div>
+      <div class="preview-scroll">
+        <article class="paper" id="paper">
+          <div class="paper-top">
+            <div>
+              <div class="paper-logo" id="pSellerName">اسم نشاطك التجاري</div>
+              <div class="paper-sub" id="pSellerAddress">أضف عنوانك من النموذج</div>
+            </div>
+            <div style="text-align:left">
+              <div class="paper-type" id="pDocType">فاتورة</div>
+              <div class="paper-meta">
+                رقم: <b id="pDocNo">INV-0001</b><br>
+                التاريخ: <b id="pDocDate">—</b><br>
+                الاستحقاق: <b id="pDueDate">—</b>
+              </div>
+            </div>
+          </div>
+          <div class="paper-parties">
+            <div>
+              <div class="paper-label">من</div>
+              <div class="paper-party-name" id="pSeller">اسم نشاطك التجاري</div>
+              <div class="paper-party-details" id="pSellerDetails"></div>
+            </div>
+            <div>
+              <div class="paper-label">إلى</div>
+              <div class="paper-party-name" id="pClient">اسم العميل</div>
+              <div class="paper-party-details" id="pClientDetails"></div>
+            </div>
+          </div>
+          <table class="paper-table">
+            <thead>
+              <tr><th>الوصف</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr>
+            </thead>
+            <tbody id="pItems"></tbody>
+          </table>
+          <div class="paper-bottom">
+            <div>
+              <div class="paper-label">ملاحظات وشروط</div>
+              <div class="paper-notes" id="pNotes">نتطلع إلى التعامل معكم.</div>
+            </div>
+            <div class="paper-sums">
+              <div class="paper-sum"><span>المجموع</span><strong id="pSubtotal">0.00</strong></div>
+              <div class="paper-sum"><span>الخصم</span><strong id="pDiscount">0.00</strong></div>
+              <div class="paper-sum"><span>الضريبة</span><strong id="pTax">0.00</strong></div>
+              <div class="paper-sum final"><span>الإجمالي</span><strong id="pGrand">0.00</strong></div>
+            </div>
+          </div>
+          <div class="paper-footer">تم إعداد هذا المستند باستخدام فاتورتي · Fatoorty</div>
+        </article>
+      </div>
+
+      <div class="panel-body">
+        <button class="btn primary" id="printBtn2" style="width:100%">⎙ طباعة الفاتورة أو حفظها PDF</button>
+        <button class="btn" id="saveBtn2" style="width:100%;margin-top:8px">✓ حفظ في سجلاتك</button>
+        <div class="history">
+          <div class="panel-head" style="padding:14px 0;border-bottom:0">
+            <h2>الفواتير المحفوظة</h2>
+            <span class="status" id="historyCount">0 مستند</span>
+          </div>
+          <div id="historyList" class="history-list"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <footer class="footer">فاتورتي © <span id="year"></span> — أداة مجانية لأعمالك الصغيرة والمستقلين</footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const $ = id => document.getElementById(id);
+  const STORAGE_KEY = 'fatoorty_invoices_v1';
+  const SETTINGS_KEY = 'fatoorty_settings_v1';
+  const fields = [
+    'docType','docNo','docDate','dueDate','currency',
+    'sellerName','sellerPhone','sellerAddress','sellerEmail',
+    'clientName','clientPhone','clientAddress',
+    'discount','discountType','tax','notes'
+  ];
+
+  let items = [];
+  let editingId = null;
+  let nextItemId = 1;
+  let toastTimer = null;
+
+  function safeNumber(value, min = 0, max = 1000000000) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return min;
+    return Math.min(max, Math.max(min, n));
+  }
+
+  function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    })[c]);
+  }
+
+  function money(value, currency = $('currency').value) {
+    const amount = Number.isFinite(Number(value)) ? Number(value) : 0;
+    try {
+      return new Intl.NumberFormat('ar-EG', {
+        style:'currency', currency, maximumFractionDigits:2,
+        minimumFractionDigits:2
+      }).format(amount);
+    } catch {
+      return amount.toFixed(2) + ' ' + currency;
+    }
+  }
+
+  function formatDate(value) {
+    if (!value) return '—';
+    const parts = value.split('-').map(Number);
+    if (parts.length !== 3 || parts.some(n => !Number.isFinite(n))) return '—';
+    return new Intl.DateTimeFormat('ar-EG', {
+      year:'numeric',month:'short',day:'numeric',timeZone:'UTC'
+    }).format(new Date(Date.UTC(parts[0],parts[1]-1,parts[2])));
+  }
+
+  function todayISO() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  function showToast(message) {
+    const el = $('toast');
+    el.textContent = message;
+    el.style.display = 'block';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.style.display = 'none'; }, 2600);
+  }
+
+  function readStore() {
+    try {
+      const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      return Array.isArray(value) ? value.filter(x => x && typeof x === 'object' && x.id) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function writeStore(data) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      return true;
+    } catch {
+      showToast('تعذر الحفظ. قد تكون مساحة المتصفح ممتلئة.');
+      return false;
+    }
+  }
+
+  function calculate() {
+    const subtotal = items.reduce((sum, item) => {
+      return sum + safeNumber(item.qty,0,1000000) * safeNumber(item.price);
+    },0);
+
+    const rawDiscount = safeNumber($('discount').value);
+    const discount = $('discountType').value === 'percent'
+      ? subtotal * Math.min(100,rawDiscount) / 100
+      : Math.min(subtotal,rawDiscount);
+
+    const taxable = Math.max(0,subtotal-discount);
+    const tax = taxable * safeNumber($('tax').value,0,100) / 100;
+
+    return {subtotal,discount,tax,total:taxable+tax};
+  }
+
+  function addItem(data = {}) {
+    const item = {
+      id: nextItemId++,
+      description: String(data.description || ''),
+      qty: safeNumber(data.qty ?? 1,0,1000000),
+      price: safeNumber(data.price ?? 0)
+    };
+    items.push(item);
+    renderItems();
+    updatePreview();
+  }
+
+  function renderItems() {
+    const body = $('itemsBody');
+    body.innerHTML = '';
+
+    items.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input aria-label="وصف المنتج" data-id="${item.id}" data-key="description" maxlength="200" placeholder="اسم الخدمة أو المنتج" value="${escapeHTML(item.description)}"></td>
+        <td><input aria-label="الكمية" class="number" data-id="${item.id}" data-key="qty" type="number" min="0" max="1000000" step="any" value="${item.qty}"></td>
+        <td><input aria-label="سعر الوحدة" class="price" data-id="${item.id}" data-key="price" type="number" min="0" max="1000000000" step="any" value="${item.price}"></td>
+        <td style="white-space:nowrap;font-size:12px;font-weight:800" id="line-${item.id}">${money(item.qty*item.price)}</td>
+        <td><button class="remove" type="button" data-remove="${item.id}" aria-label="حذف البند">×</button></td>`;
+      body.appendChild(tr);
+    });
+
+    if (!items.length) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td colspan="5" style="padding:20px;text-align:center;color:#94a3b8;font-size:12px">لا توجد بنود. اضغط إضافة منتج أو خدمة.</td>';
+      body.appendChild(tr);
+    }
+  }
+
+  $('itemsBody').addEventListener('input', event => {
+    const input = event.target;
+    const id = Number(input.dataset.id);
+    const key = input.dataset.key;
+    if (!id || !key) return;
+    const item = items.find(x => x.id === id);
+    if (!item) return;
+
+    if (key === 'description') item.description = input.value;
+    if (key === 'qty') item.qty = safeNumber(input.value,0,1000000);
+    if (key === 'price') item.price = safeNumber(input.value);
+
+    const line = $('line-'+id);
+    if (line) line.textContent = money(item.qty*item.price);
+    updatePreview();
+  });
+
+  $('itemsBody').addEventListener('click', event => {
+    const btn = event.target.closest('[data-remove]');
+    if (!btn) return;
+    const id = Number(btn.dataset.remove);
+    items = items.filter(item => item.id !== id);
+    renderItems();
+    updatePreview();
+  });
+
+  function getData() {
+    const data = {};
+    fields.forEach(id => {
+      const el = $(id);
+      data[id] = el ? el.value : '';
+    });
+    data.items = items.map(item => ({
+      description:item.description,
+      qty:item.qty,
+      price:item.price
+    }));
+    return data;
+  }
+
+  function setData(data) {
+    fields.forEach(id => {
+      if (data[id] !== undefined && $(id)) $(id).value = data[id];
+    });
+    items = [];
+    nextItemId = 1;
+    (Array.isArray(data.items) ? data.items : []).forEach(item => {
+      items.push({
+        id:nextItemId++,
+        description:String(item.description || ''),
+        qty:safeNumber(item.qty ?? 1,0,1000000),
+        price:safeNumber(item.price ?? 0)
+      });
+    });
+    if (!items.length) {
+      items.push({id:nextItemId++,description:'',qty:1,price:0});
+    }
+    renderItems();
+    updatePreview();
+  }
+
+  function updatePreview() {
+    const data = getData();
+    const totals = calculate();
+
+    $('subtotal').textContent = money(totals.subtotal);
+    $('discountTotal').textContent = money(totals.discount);
+    $('taxTotal').textContent = money(totals.tax);
+    $('grandTotal').textContent = money(totals.total);
+
+    $('pSellerName').textContent = data.sellerName || 'اسم نشاطك التجاري';
+    $('pSellerAddress').textContent = data.sellerAddress || 'أضف عنوانك من النموذج';
+    $('pDocType').textContent = data.docType === 'quote' ? 'عرض سعر' : 'فاتورة';
+    $('pDocNo').textContent = data.docNo || '—';
+    $('pDocDate').textContent = formatDate(data.docDate);
+    $('pDueDate').textContent = formatDate(data.dueDate);
+
+    $('pSeller').textContent = data.sellerName || 'اسم نشاطك التجاري';
+    $('pSellerDetails').textContent = [
+      data.sellerPhone,
+      data.sellerEmail,
+      data.sellerAddress
+    ].filter(Boolean).join('\n');
+
+    $('pClient').textContent = data.clientName || 'اسم العميل';
+    $('pClientDetails').textContent = [
+      data.clientPhone,data.clientAddress
+    ].filter(Boolean).join('\n');
+
+    $('pItems').innerHTML = '';
+    if (!items.length) {
+      $('pItems').innerHTML = '<tr><td colspan="4" style="text-align:center;color:#64748b">لا توجد بنود</td></tr>';
+    } else {
+      items.forEach(item => {
+        const tr = document.createElement('tr');
+        [
+          item.description || '—',
+          String(item.qty),
+          money(item.price),
+          money(item.qty*item.price)
+        ].forEach((value,index) => {
+          const td = document.createElement('td');
+          td.textContent = value;
+          if (index >= 2) td.className = 'num';
+          tr.appendChild(td);
+        });
+        $('pItems').appendChild(tr);
+      });
+    }
+
+    $('pNotes').textContent = data.notes || 'نتطلع إلى التعامل معكم.';
+    $('pSubtotal').textContent = money(totals.subtotal);
+    $('pDiscount').textContent = '− ' + money(totals.discount);
+    $('pTax').textContent = money(totals.tax);
+    $('pGrand').textContent = money(totals.total);
+  }
+
+  function newDocument(confirmFirst = true) {
+    if (confirmFirst && items.length && !confirm('إنشاء مستند جديد؟ تأكد من حفظ التعديلات الحالية أولًا.')) return;
+
+    const date = todayISO();
+    fields.forEach(id => {
+      const el = $(id);
+      if (el) el.value = '';
+    });
+    $('docType').value = 'invoice';
+    $('docDate').value = date;
+    $('dueDate').value = date;
+    $('currency').value = 'EGP';
+    $('discount').value = '0';
+    $('discountType').value = 'amount';
+    $('tax').value = '0';
+    $('docNo').value = generateDocNo();
+    $('notes').value = '';
+    items = [];
+    nextItemId = 1;
+    editingId = null;
+    addItem();
+    showToast('تم تجهيز مستند جديد');
+  }
+
+  function generateDocNo() {
+    const list = readStore();
+    const number = list.length + 1;
+    return 'INV-' + String(number).padStart(4,'0');
+  }
+
+  function saveDocument() {
+    const data = getData();
+
+    if (!data.sellerName.trim()) {
+      showToast('اكتب اسمك أو اسم نشاطك التجاري أولًا.');
+      $('sellerName').focus();
+      return;
+    }
+    if (!data.clientName.trim()) {
+      showToast('اكتب اسم العميل أولًا.');
+      $('clientName').focus();
+      return;
+    }
+    if (!items.some(x => x.description.trim())) {
+      showToast('أضف وصفًا لبند واحد على الأقل.');
+      return;
+    }
+    if (data.sellerEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.sellerEmail)) {
+      showToast('راجع البريد الإلكتروني.');
+      $('sellerEmail').focus();
+      return;
+    }
+
+    const list = readStore();
+    const id = editingId || (crypto.randomUUID ? crypto.randomUUID() : 'doc-'+Date.now()+'-'+Math.random().toString(16).slice(2));
+    const existingIndex = list.findIndex(x => x.id === id);
+    const record = {
+      id,
+      data,
+      total:calculate().total,
+      updatedAt:new Date().toISOString(),
+      createdAt:existingIndex >= 0 ? list[existingIndex].createdAt : new Date().toISOString()
+    };
+
+    if (existingIndex >= 0) list[existingIndex] = record;
+    else list.unshift(record);
+
+    if (writeStore(list)) {
+      editingId = id;
+      renderHistory();
+      showToast('تم حفظ المستند بنجاح ✓');
+    }
+  }
+
+  function renderHistory() {
+    const list = readStore();
+    $('historyCount').textContent = list.length + ' مستند';
+    const container = $('historyList');
+    container.innerHTML = '';
+
+    if (!list.length) {
+      container.innerHTML = '<div class="empty">لا توجد فواتير محفوظة بعد.<br>أنشئ فاتورتك واضغط حفظ.</div>';
+      return;
+    }
+
+    list.slice(0,100).forEach(record => {
+      const data = record.data || {};
+      const item = document.createElement('div');
+      item.className = 'history-item';
+
+      const info = document.createElement('div');
+      info.className = 'history-info';
+      const title = document.createElement('strong');
+      title.textContent = data.docNo || 'مستند بدون رقم';
+      const subtitle = document.createElement('span');
+      subtitle.textContent = (data.clientName || 'عميل غير محدد') + ' · ' + money(record.total || 0, data.currency || 'EGP');
+      info.append(title,subtitle);
+
+      const actions = document.createElement('div');
+      actions.className = 'history-actions';
+
+      const load = document.createElement('button');
+      load.className = 'btn small';
+      load.textContent = 'فتح';
+      load.type = 'button';
+      load.addEventListener('click', () => {
+        if (items.length && !confirm('فتح هذا المستند واستبدال البيانات الحالية؟ احفظ تعديلاتك أولًا.')) return;
+        setData(data);
+        editingId = record.id;
+        window.scrollTo({top:0,behavior:'smooth'});
+        showToast('تم فتح المستند');
+      });
+
+      const del = document.createElement('button');
+      del.className = 'btn small danger';
+      del.textContent = 'حذف';
+      del.type = 'button';
+      del.addEventListener('click', () => {
+        if (!confirm('هل تريد حذف هذا المستند نهائيًا من هذا المتصفح؟')) return;
+        const updated = readStore().filter(x => x.id !== record.id);
+        if (writeStore(updated)) {
+          if (editingId === record.id) editingId = null;
+          renderHistory();
+          showToast('تم حذف المستند');
+        }
+      });
+
+      actions.append(load,del);
+      item.append(info,actions);
+      container.appendChild(item);
+    });
+  }
+
+  function downloadFile(filename, content, type) {
+    const blob = new Blob([content],{type});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url),1000);
+  }
+
+  function backup() {
+    const data = {
+      app:'Fatoorty',
+      version:1,
+      exportedAt:new Date().toISOString(),
+      invoices:readStore()
+    };
+    downloadFile('fatoorty-backup.json',JSON.stringify(data,null,2),'application/json;charset=utf-8');
+    showToast('تم تنزيل النسخة الاحتياطية');
+  }
+
+  function restoreSettings() {
+    try {
+      const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+      ['sellerName','sellerPhone','sellerAddress','sellerEmail'].forEach(id => {
+        if (settings[id]) $(id).value = settings[id];
+      });
+    } catch {}
+  }
+
+  function saveSettings() {
+    try {
+      const settings = {};
+      ['sellerName','sellerPhone','sellerAddress','sellerEmail'].forEach(id => {
+        settings[id] = $(id).value;
+      });
+      localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));
+    } catch {}
+  }
+
+  $('addItemBtn').addEventListener('click',() => addItem());
+  $('saveBtn').addEventListener('click',saveDocument);
+  $('saveBtn2').addEventListener('click',saveDocument);
+  $('printBtn').addEventListener('click',() => window.print());
+  $('printBtn2').addEventListener('click',() => window.print());
+  $('backupBtn').addEventListener('click',backup);
+  $('newBtn').addEventListener('click',() => newDocument(true));
+
+  fields.forEach(id => {
+    $(id).addEventListener('input',() => {
+      updatePreview();
+      if (['sellerName','sellerPhone','sellerAddress','sellerEmail'].includes(id)) saveSettings();
+    });
+    $(id).addEventListener('change',updatePreview);
+  });
+
+  $('year').textContent = new Date().getFullYear();
+  restoreSettings();
+  $('docDate').value = todayISO();
+  $('dueDate').value = todayISO();
+  $('docNo').value = generateDocNo();
+  addItem();
+  renderHistory();
+  updatePreview();
+})();
+</script>
+</body>
+</html>
